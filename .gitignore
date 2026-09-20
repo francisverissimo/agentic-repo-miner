@@ -1,6 +1,10 @@
 # Dados gerados pelo miner_agents.py (parquet, clones, downloads, manifest)
 data/
 
+# Artigos em PDF (não são versionados; ver papers/MANIFEST.md)
+papers/*
+!papers/MANIFEST.md
+
 # Ambiente virtual e artefatos do Python
 .venv/
 __pycache__/

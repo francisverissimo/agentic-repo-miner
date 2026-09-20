@@ -100,3 +100,24 @@ A detecção é case-insensitive e feita na **raiz** do repositório:
   `agents/`, `.github/instructions/`, `.claude/`, etc.).
 - Repos deletados/renomeados/privados são registrados como `erro` no manifesto e
   não quebram a execução.
+
+## Documentação do projeto
+
+Para garantir **continuidade** quando o projeto for manipulado por outros
+agentes (Claude Code, Kiro, OpenCode, ...), o repositório mantém:
+
+- `AGENTS.md` — contrato central para agentes: estado atual, regras
+  obrigatórias e decisões vigentes.
+- `CHANGELOG.md` — log datado de todos os passos/incrementos dos experimentos.
+- `DECISIONS.md` — registro ADR das decisões (com contexto, alternativas e
+  consequências).
+
+Qualquer alteração no projeto exige entrada datada no `CHANGELOG.md` — ver
+regras detalhadas no `AGENTS.md`.
+
+## Artigos (papers)
+
+PDFs de artigos **não são versionados** no git — ficam em `papers/` (pasta
+ignorada por `.gitignore`), apenas para leitura local. O registro versionado é
+o `papers/MANIFEST.md`, com metadados, links e a contribuição de cada artigo
+à pesquisa. O paper de base já está lá.
