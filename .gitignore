@@ -1,0 +1,7 @@
+# Dados gerados pelo miner_agents.py (parquet, clones, downloads, manifest)
+data/
+
+# Ambiente virtual e artefatos do Python
+.venv/
+__pycache__/
+*.pyc
