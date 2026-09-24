@@ -1,9 +1,10 @@
 # miner_agents — Mineração de repositórios que trabalham com agentes de IA
 
-Script simples para achar e baixar arquivos `.md` de repositórios que **de fato
-trabalham com agentes de IA**, ou seja, que adotaram arquivos de instrução como
-`AGENTS.md` (e variações por agente: `CLAUDE.md`, `COPILOT_INSTRUCTIONS.md`,
-`GEMINI.md`, `OPENHANDS.md`, ...).
+Script para achar e baixar arquivos `.md` de repositórios que **de fato
+trabalham com agentes de IA** — detectados por múltiplos sinais (arquivos de
+instrução como `AGENTS.md` e variações por agente, diretórios de convenção como
+`.claude/`, co-author em commits, prefixos de branch). O catálogo de sinais é
+data-driven, versionado em `heuristics.json` (base: Robbes et al., MSR'26).
 
 ## Contexto (por que este script existe)
 
@@ -17,26 +18,36 @@ dataset público no Hugging Face:
   issues e metadados dos repositórios.
 
 Este script usa as tabelas `Repositories_{Agente}` para obter a **lista de
-repositórios onde agentes abriram PRs**, e então verifica quais desses repos
-adotaram a convenção `AGENTS.md`. Para cada repo adotante, baixa **todos os
+repositórios onde agentes abriram PRs** (o *universo* da pesquisa), e então
+classifica cada repo como **adotante de agentes** usando o catálogo de
+heurísticas de Robbes et al. (MSR'26): arquivo de instrução na raiz, diretório
+de convenção (`.claude/`, `.codex/`, ...), subpastas conhecidas
+(`.github/instructions/`, `copilot-instructions/`, ...), co-author/author em
+commits e prefixos de branch. Para cada repo adotante, baixa **todos os
 arquivos `.md`**.
 
 ## Como funciona (tecnicamente)
 
 Para não depender da API do GitHub (rate limit de 60 req/h sem token), o script
-usa **clone parcial do git**:
+usa **clone parcial do git** + chamadas leves:
 
-1. `git clone --depth 1 --filter=blob:none --no-checkout --sparse` — baixa só a
-   *árvore de nomes de arquivos* (dezenas de KB), sem conteúdo.
-2. `git ls-tree -r --name-only HEAD` — lista todos os arquivos do repo
-   localmente.
-3. Detecta `AGENTS.md` e variantes na raiz + enumera todos os `.md`.
-4. Se houver instrução de agente: `git sparse-checkout set --no-cone <...>` +
+1. `git clone --depth 1 --filter=blob:none --no-checkout --sparse --single-branch` —
+   baixa só a *árvore de nomes de arquivos* (dezenas de KB), sem conteúdo.
+2. `git ls-tree -r --name-only HEAD` lista todos os **arquivos**; uma segunda
+   chamada com `-d` lista os **diretórios** (para detectar `.claude/`, etc.).
+3. Sinais de commit: o commit `HEAD` é verificado de graça
+   (`git log -1`); se não bater, o histórico inteiro é varrido após
+   `git fetch --filter=blob:none --unshallow --no-tags` (só objetos de
+   commit/tree, sem blobs) — nenhum arquivo de conteúdo é baixado.
+4. Sinais de branch: `git ls-remote --heads <url> 'refs/heads/claude/*' ...` —
+   uma chamada leve, sem clone.
+5. Adotante (qualquer sinal): `git sparse-checkout set --no-cone <...>` +
    `git checkout` materializa **somente** os `.md`.
-5. Copia os arquivos para `data/downloads/{owner}__{repo}/` preservando o
+6. Copia os arquivos para `data/downloads/{owner}__{repo}/` preservando o
    caminho relativo.
 
-Resultado por repositório em `data/manifest.csv`.
+Resultado por repositório em `data/manifest.csv` (inclui `signals` e
+`heuristics_version`).
 
 ## Como rodar
 
@@ -53,6 +64,9 @@ python3 -m venv .venv
 .venv/bin/python miner_agents.py --limit 0              # processa TUDO (pode levar horas)
 .venv/bin/python miner_agents.py --merged-only          # só repos com PR de agente mergeado
 .venv/bin/python miner_agents.py --resume               # continua de onde parou
+.venv/bin/python miner_agents.py --no-commit-signals    # desliga varredura de commits
+.venv/bin/python miner_agents.py --no-branch-signals    # desliga ls-remote de branches
+.venv/bin/python miner_agents.py --heuristics outro.json # catálogo alternativo
 ```
 
 ## Estrutura de saída
@@ -80,24 +94,44 @@ data/
 | `--merged-only` | off | Restringe a repos com PR de agente **mergeado** |
 | `--delay` | `0.25` | Pausa (s) após cada clone (educação com o GitHub) |
 | `--resume` | off | Pula repos já presentes no `manifest.csv` |
+| `--heuristics` | `heuristics.json` | Catálogo de sinais (versionado no repo) |
+| `--no-commit-signals` | off | Desliga a varredura de autor/co-author em commits |
+| `--no-branch-signals` | off | Desliga o `ls-remote` de prefixos de branch |
 
-## Lista de arquivos de instrução detectados
+## Catálogo de heurísticas (`heuristics.json`)
 
-A detecção é case-insensitive e feita na **raiz** do repositório:
+A detecção é **case-insensitive** e dirigida por dados — o script lê o
+catálogo `heuristics.json` (versionado no git), cuja **fonte é a Tabela 1** de
+Robbes et al. (MSR'26), ampliada com convenções observadas na rodada v0.1:
 
-`AGENTS.md`, `CLAUDE.md`, `COPILOT_INSTRUCTIONS.md`, `GEMINI.md`, `OPENHANDS.md`,
-`CURSOR.md`, `WINDY.md`, `Q.md`, `AMAZON_Q.md`, `DEVIN.md`, `ROO.md`, `TRAE.md`,
-`CODEWISDOM.md`, `JULES.md`
+- `instruction_files_root` — arquivos de instrução **na raiz** (`AGENTS.md`,
+  `AGENT.md`, `CLAUDE.md`, `GEMINI.md`, `COPILOT_INSTRUCTIONS.md`,
+  `COPILOT-INSTRUCTIONS.md`, `OPENHANDS.md`, `CURSOR.md`, ...);
+- `instruction_dirs_root` — diretórios de convenção **na raiz** (`.claude/`,
+  `.codex/`, `.cursor/`, `.windsurf/`, `.copilot/`, `.gemini/`, `.cline/`,
+  `.kiro/`, `.opencode/`, `memory-bank/`, ...);
+- `instruction_paths_anywhere` — caminhos conhecidos **em qualquer nível**
+  (`.github/instructions/`, `copilot-instructions/`,
+  `.github/workflows/claude|copilot`, `.specify/memory/constitution.md`);
+- `commit_signals` — autor/co-author conhecidos (`Co-authored-by: Claude`,
+  `noreply@anthropic.com`, `codex@openai.com`, `Copilot`,
+  `devin-ai-integration`, `google-labs-jules`, ...);
+- `branch_prefixes` — prefixos de branch remoto (`claude/`, `codex/`,
+  `copilot/`, `cursor/`, `devin/`, `jules/`, `sweep/`, ...).
 
-> A lista vive na constante `INSTRUCTION_NAMES` no topo do script — fácil de
-> estender.
+> Toda alteração em `heuristics.json` exige novo `version` + entrada no
+> `CHANGELOG.md` — heurísticas mudam rápido (Peril 4 do paper).
 
 ## Limitações
 
 - O dataset do paper é um snapshot (jun–ago/2025); o script inspeciona o estado
   **atual** dos repositórios.
-- Detecta apenas arquivos de instrução na **raiz** (v2 pode incluir
-  `agents/`, `.github/instructions/`, `.claude/`, etc.).
+- Heurísticas são ruidosas por natureza (o paper alerta): ex., um humano
+  chamado *Claude* pode assinar commits; `copilot-instructions/` pode conter
+  conteúdo para humanos. Por isso o catálogo prioriza padrões específicos
+  (emails/repos de convenção conhecidos).
+- Sinais de commit varrem o branch padrão (PRs não-mergeados em branches
+  próprias não aparecem no histórico).
 - Repos deletados/renomeados/privados são registrados como `erro` no manifesto e
   não quebram a execução.
 

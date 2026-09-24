@@ -12,6 +12,57 @@ paper, mudança de dataset...) · **Adicionado / Alterado / Removido** ·
 
 ---
 
+## [2026-09-23] — v0.2: detecção multi-sinal (heurísticas de Robbes et al.)
+
+**Contexto:** paper indicado pelo orientador — *"Promises, Perils, and (Timely)
+Heuristics for Mining Coding Agent Activity"* (Robbes et al., MSR'26), adicionado
+em `papers/`. Decisão de usar as heurísticas dele para **melhorar a detecção**
+do script atual, mantendo o mesmo dataset/universo (D1).
+
+**Adicionado:**
+- `heuristics.json` **v1.0.0** — catálogo data-driven de sinais (arquivos/dirs
+  na raiz, subpastas conhecidas, co-author em commits, prefixos de branch),
+  fonte = Tabela 1 do paper + convenções da v0.1. Regra de manutenção: toda
+  mudança exige novo `version` + CHANGELOG.
+- `miner_agents.py` v0.2: leitura do catálogo; detecção de **diretórios** na
+  raiz (`.claude/`, `.codex/`, ...) via `ls-tree -r -d`; subpastas conhecidas;
+  varredura de commits (HEAD grátis + `fetch --filter=blob:none --unshallow`
+  quando necessário); prefixos de branch via `git ls-remote` (sem clone, sem
+  API — D2 preservada); colunas novas `signals` e `heuristics_version` no
+  manifest; flags `--heuristics`, `--no-commit-signals`, `--no-branch-signals`.
+- Ajuste técnico: `ls-tree -r --name-only` **não lista diretórios** (validado
+  empiricamente) — por isso a varredura de pastas usa `-d` em comando separado.
+
+**Decisões:** D6 (detecção multi-sinal, vigente); D3 atualizada (escopo de
+download mantido; detecção ampliada por D6).
+
+**Papers:** entrada de Robbes et al. no `papers/MANIFEST.md`.
+
+**Execuções:**
+- Protótipo em `/tmp/opencode`: validação de mecânica (`ls-tree -d`, `ls-remote`
+  multi-pattern, `--unshallow --filter=blob:none`: 4,6 s no apache/datafusion,
+  14.964 commits).
+- Smoke test `--limit 5 --seed 42`: 5/5 adotantes via sinais novos
+  (`.kiro/`, `codex/` branch, commit `noreply@anthropic.com`, `.github/instructions/`).
+- Rodada de comparação `--limit 500 --seed 42 --workers 5` (2026-09-23):
+  390 repos **adotantes** (vs 106 da v0.1 → **+285**; 105 mantidos, 1 perdido
+  por repo ter ficado privado) · 78 erros (repos privados/removidos) ·
+  14.633 `.md` baixados (~188 MB; vs 6.781/96 MB na v0.1).
+  - Sinais por categoria: arquivo raiz 107 · dir raiz 50 · subpasta 7 ·
+    commit 287 · branch 250.
+  - Cruzamentos: com + commit + branch 57 · sem (só commit e/ou branch) 264 ·
+    **0 repos com sinal de arquivo isolado** (todo adotante por arquivo também
+    tem commit ou branch — dado interessante para o orientador, dialoga com o
+    Peril 1 do paper: detecção só por arquivo subestima).
+  - Sanidade: contagem de arquivos na raiz (107) ≈ v0.1 (106) + nomes novos
+    (`AGENT.md` 3, `CRUSH.md` 1), confirmando que a lista antiga continuaria
+    com o mesmo resultado e o ganho vem dos novos sinais.
+
+**Em aberto:** rodada completa (`--limit 0`), análise de conteúdo (taxonomia do
+Promise 5), cruzamento com outros datasets, expansão de universo.
+
+---
+
 ## [2026-09-20] — Documentação do projeto + organização de papers
 
 **Contexto:** necessidade de garantir **continuidade** quando o projeto for

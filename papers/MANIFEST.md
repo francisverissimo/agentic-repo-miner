@@ -16,6 +16,20 @@ Regra ao adicionar um novo artigo:
 
 ---
 
+## 2026-09-23 — Heurísticas de detecção (indicado pelo orientador)
+
+| Campo | Valor |
+|---|---|
+| **Arquivo (local)** | `papers/Promises, Perils, and (Timely) Heuristics for Mining Coding Agent Activity.pdf` |
+| **Título** | Promises, Perils, and (Timely) Heuristics for Mining Coding Agent Activity |
+| **Autores** | Romain Robbes, Théo Matricon, Thomas Degueule, Andre Hora, Stefano Zacchiroli |
+| **Ano** | 2026 (MSR '26, Rio de Janeiro) |
+| **arXiv** | arXiv:2601.18345v1 \[cs.SE\] |
+| **Fonte** | https://doi.org/10.1145/nnnnnnn.nnnnnnn (proc. MSR'26) |
+| **Contribuição** | Catálogo de heurísticas para detectar traços de coding agents em 5 categorias de artefatos (files, commits, branches, PRs, issues/users), com counts do GitHub (Tabela 1). Promises/Perils que moldam a metodologia: **Peril 1** (observabilidade parcial — >40% dos adotantes não têm marcador de commit; ~20% excluem arquivos de guidance via `.gitignore`), **Peril 4** (velocity — heurísticas mudam rápido, mitigação = repositório comunitário), **Promise 5** (taxonomia dos arquivos de guidance: regras, conhecimento do repo, planos de tarefa, táticas). Base da decisão **D6** (detecção multi-sinal via `heuristics.json`) e do roadmap de análise de conteúdo. |
+
+---
+
 ## 2026-09-19 — Paper de base
 
 | Campo | Valor |

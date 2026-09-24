@@ -48,22 +48,20 @@ Registro das decisões relevantes do projeto. Formato por decisão:
 
 ---
 
-## D3 — Escopo de download: todos os `.md`; detecção na raiz
+## D3 — Escopo de download: todos os `.md`; detecção inicialmente só na raiz
 
-- **Data:** 2026-09-19 · **Status:** vigente
+- **Data:** 2026-09-19 · **Status:** vigente, com a parte de *detecção* **substituída por D6** (2026-09-23); escopo de *download* mantido
 - **Contexto:** usuário pediu "todos os arquivos .md dos repos que realmente
   trabalham com agentes (que possuem AGENTS.md e variações por agente)".
 - **Alternativas consideradas:**
   - Baixar apenas os arquivos de instrução (AGENTS.md, CLAUDE.md, ...);
   - Baixar todos os `.md` do repo adotante (escolhido);
   - Instruções + README.
-- **Decisão:** repo adotante = tem **na raiz** um arquivo cujo basename está em
-  `INSTRUCTION_NAMES` (case-insensitive). Para adotantes, baixar **todos** os
-  arquivos com extensão `.md`/`.markdown`/`.mdown`, preservando o caminho relativo.
-- **Consequências:** volume maior de dados (96 MB na amostra de 500);
-  arquivos de instrução aninhados (ex.: `src/CLAUDE.md`) são baixados como
-  `.md` mas não qualificam o repo (detecção é só na raiz); subpastas
-  (`agents/`, `.github/instructions/`, `.claude/`) ficam para a v2 (roadmap).
+- **Decisão (vigente):** repo adotante = repo com sinal de agente (ver D6);
+  para adotantes, baixar **todos** os arquivos com extensão `.md`/`.markdown`/`.mdown`
+  do repo, preservando o caminho relativo.
+- **Consequências:** volume maior de dados (96 MB na amostra de 500 da v0.1);
+  subpastas conhecidas passam a qualificar a partir da v0.2 (D6).
 
 ---
 
@@ -95,3 +93,37 @@ Registro das decisões relevantes do projeto. Formato por decisão:
   dataset) e a contribuição de cada artigo à pesquisa.
 - **Consequências:** repo leve e reproduzível (artigos re-downloadable via
   links); leitura offline preservada; gestão de contexto centralizada.
+
+---
+
+## D6 — Detecção multi-sinal com heurísticas de Robbes et al. (SIGNATURA v0.2)
+
+- **Data:** 2026-09-23 · **Status:** vigente
+- **Contexto:** o paper indicado pelo orientador (Robbes et al., MSR'26)
+  documenta heurísticas para detectar atividade de coding agents em arquivos,
+  commits, branches e PRs — e mostra que detecção só por arquivo de instrução
+  na raiz **subestima** adoção (Peril 1: >40% dos adotantes não têm marcador em
+  commits; ~20% excluem os arquivos de guidance via `.gitignore`).
+- **Alternativas consideradas:**
+  - Manter detecção v0.1 (raiz-only) e só ampliar a lista de nomes;
+  - Adotar catálogo completo multi-sinal (escolhido);
+  - Incluir labels de PR (rejeitado: exige GitHub API, contraria D2).
+- **Decisão:** o repo é **adotante** se qualquer um destes sinais bater
+  (catálogo data-driven em `heuristics.json`, versionado):
+  - arquivo de instrução na raiz (lista ampliada: `AGENTS.md`, `AGENT.md`,
+    `CLAUDE.md`, `copilot-instructions.md`, ...);
+  - diretório de convenção na raiz (`.claude/`, `.codex/`, `.cursor/`, ...);
+  - caminhos conhecidos em qualquer nível (`.github/instructions/`,
+    `copilot-instructions/`, `.github/workflows/claude|copilot`, ...);
+  - autor/co-author conhecido em commits (`Co-authored-by: Claude`,
+    `noreply@anthropic.com`, `codex@openai.com`, ...) — HEAD grátis; histórico
+    só se o HEAD não bater, via fetch sem blobs;
+  - prefixos de branch remoto (`claude/`, `codex/`, `copilot/`, ...) via
+    `git ls-remote` (1 chamada, sem clone).
+  O escopo de download (todos os `.md` dos adotantes — D3) é mantido.
+- **Consequências:** mais repos classificados como adotantes dentro do mesmo
+  universo (dataset MOSAIC-agentic-3m); manifest ganha colunas `signals` e
+  `heuristics_version`, permitindo quantificar o Peril 1 na nossa coleta;
+  heurísticas atualizáveis sem tocar no código (mudança de `heuristics.json`
+  gera entrada de CHANGELOG — Peril 4). Custos adicionais por repo: 1 chamada
+  `ls-remote` + fetch profundo sem blobs quando o HEAD não tem sinal.

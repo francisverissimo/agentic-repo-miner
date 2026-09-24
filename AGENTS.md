@@ -9,28 +9,36 @@
 ## Objetivo do projeto
 
 Pesquisa de *Mining Software Repositories* (MSR): identificar repositórios
-GitHub que **realmente trabalham com agentes de IA** — aqueles que adotaram
-arquivos de instrução (`AGENTS.md` e variações como `CLAUDE.md`,
-`COPILOT_INSTRUCTIONS.md`, `GEMINI.md`, ...) — e baixar seus arquivos `.md`
-para análise.
+GitHub que **realmente trabalham com agentes de IA** — detectados por múltiplos
+sinais (arquivos de instrução como `AGENTS.md` e variações, diretórios de
+convenção como `.claude/`, co-author em commits, prefixos de branch) — e
+baixar seus arquivos `.md` para análise.
 
 Base: paper *"Investigating Autonomous Agent Contributions in the Wild:
 Activity Patterns and Code Change over Time"* (Popescu et al., 2026) e seu
-dataset público `AISE-TUDelft/MOSAIC-agentic-3m` (Hugging Face).
+dataset público `AISE-TUDelft/MOSAIC-agentic-3m` (Hugging Face); catálogo de
+heurísticas de *"Promises, Perils, and (Timely) Heuristics for Mining Coding
+Agent Activity"* (Robbes et al., MSR'26).
 
 ## Estado atual (atualizar sempre que algo mudar)
 
-- **Script:** `miner_agents.py` v0.1 — lê `Repositories_{Agente}` do dataset,
+- **Script:** `miner_agents.py` v0.2 — lê `Repositories_{Agente}` do dataset,
   deduplica por `name_with_owner`, amostra, faz *partial clone* via git
-  (`--filter=blob:none`), detecta instruções na **raiz** e baixa **todos** os
-  `.md` dos repos adotantes.
-- **Última execução (2026-09-19):** `--limit 500 --seed 42 --workers 5` →
-  106 repos com arquivo de instrução (`CLAUDE.md` 71 · `AGENTS.md` 55 ·
+  (`--filter=blob:none`) e classifica cada repo como **adotante** se qualquer
+  sinal do catálogo `heuristics.json` bater (arquivo de instrução na raiz,
+  diretório de convenção, subpasta conhecida, co-author em commits, prefixo de
+  branch). Adotantes têm **todos** os `.md` baixados.
+- **Última execução v0.1 (2026-09-19):** `--limit 500 --seed 42 --workers 5` →
+  106 repos adotantes por arquivo na raiz (`CLAUDE.md` 71 · `AGENTS.md` 55 ·
   `GEMINI.md` 4) · 6.781 `.md` baixados (96 MB) · 77 "erros" = repos hoje
-  privados/removidos.
-- **Dados:** `data/` (gitignored) — `data/manifest.csv` (1 linha por repo),
-  `data/downloads/`, `data/parquet/`.
-- **Decisões vigentes:** D1–D5 (`DECISIONS.md`).
+  privados/removidos. (Backup: `data/manifest_v0.1.csv`.)
+- **Rodada v0.2 (2026-09-23):** mesma amostra, multi-sinal → **390 repos
+  adotantes** (vs 106 v0.1; +285 via novos sinais) · 14.633 `.md` baixados
+  (~188 MB) · 78 erros. Sinais: commit 287 · branch 250 · arquivo raiz 107 ·
+  dir raiz 50 · subpasta 7. Resultados e análise: `CHANGELOG.md` (2026-09-23).
+- **Dados:** `data/` (gitignored) — `data/manifest.csv` (1 linha por repo,
+  colunas `signals` + `heuristics_version`), `data/downloads/`, `data/parquet/`.
+- **Decisões vigentes:** D1–D6 (`DECISIONS.md`).
 
 ## Convenções e regras obrigatórias
 
@@ -50,6 +58,10 @@ dataset público `AISE-TUDelft/MOSAIC-agentic-3m` (Hugging Face).
    (gitignored) e registrar metadados/links em `papers/MANIFEST.md`.
 8. **Orientações do orientador:** registrar como entrada de CHANGELOG
    (origem = orientador); se mudarem abordagem, atualizar `DECISIONS.md`.
+9. **`heuristics.json`:** catálogo data-driven de sinais. Toda alteração nele
+   exige novo número de `version`, entrada de CHANGELOG e (se mudar critério)
+   atualização em `DECISIONS.md` — combate o Peril 4 do paper (heurísticas
+   mudam rápido).
 
 ## Como rodar
 
@@ -61,6 +73,9 @@ python3 -m venv .venv                      # 1ª vez
 .venv/bin/python miner_agents.py --merged-only           # só repos com PR de agente mergeado
 .venv/bin/python miner_agents.py --limit 0               # dataset inteiro (pode levar horas)
 .venv/bin/python miner_agents.py --resume                # continua de onde parou
+.venv/bin/python miner_agents.py --no-commit-signals     # desliga varredura de commits
+.venv/bin/python miner_agents.py --no-branch-signals     # desliga ls-remote de branches
+.venv/bin/python miner_agents.py --heuristics outros.json# catálogo alternativo
 ```
 
 ## Decisões vigentes (resumo)
@@ -69,9 +84,10 @@ python3 -m venv .venv                      # 1ª vez
 |----|---------|--------|
 | D1 | Dataset fonte = `AISE-TUDelft/MOSAIC-agentic-3m` (`Repositories_{Claude,Codex,Copilot,Devin,Jules}`, sem `Human`) | vigente |
 | D2 | Abordagem **sem token**: partial clone via git em vez de GitHub API | vigente |
-| D3 | Escopo de download: **todos** os `.md`; detecção de instrução só na **raiz** | vigente |
+| D3 | Escopo de download: **todos** os `.md` dos adotantes (detecção ampliada por D6) | vigente |
 | D4 | Primeira rodada em **amostra** (`--limit 500`, `seed 42`) antes de escala total | concluída |
 | D5 | Artigos: PDFs **fora** do git (`papers/`); manifest versionado (`papers/MANIFEST.md`) | vigente |
+| D6 | Detecção **multi-sinal** via `heuristics.json` (Robbes et al.): arquivos/dirs na raiz, subpastas conhecidas, co-author em commits, prefixos de branch | vigente |
 
 Rationale completo e alternativas consideradas: `DECISIONS.md`.
 
@@ -80,10 +96,19 @@ Rationale completo e alternativas consideradas: `DECISIONS.md`.
 - PDFs: `papers/` (gitignored). Manifest versionado: `papers/MANIFEST.md`.
 - Paper de base: Popescu et al. (2026) — dataset MOSAIC-agentic-3m; *search
   signals* para atribuir PRs a agentes (branch prefix, author bots, watermarks).
+- Heurísticas (D6): Robbes et al. (MSR'26) — catálogo de heurísticas para
+  detectar coding agents (files, commits, branches, PRs); Peril 1
+  (observabilidade parcial), Peril 4 (velocity), Promise 5 (taxonomia dos
+  arquivos de guidance).
 
 ## Roadmap
 
 - [ ] Rodada completa do dataset (`--limit 0`)
-- [ ] Análise de conteúdo dos arquivos de instrução (temas, comandos, regras)
-- [ ] v2: detecção em subpastas (`agents/`, `.github/instructions/`, `.claude/`)
-- [ ] Cruzamento com outros datasets (ex.: `disler/agent-contexts`) p/ estimar cobertura
+- [ ] Análise de conteúdo dos arquivos de instrução usando a taxonomia do
+      Promise 5 (regras/convenções · conhecimento do repo · planos de tarefa ·
+      táticas/estratégias)
+- [x] ~~v2: detecção multi-sinal~~ (concluído em 2026-09-23 — D6)
+- [ ] Cruzamento com outros datasets (ex.: `disler/agent-contexts`) p/ estimar
+      cobertura
+- [ ] Expansão de universo via lista de ~10k repos adotantes do paper de
+      heurísticas (Section 6)
