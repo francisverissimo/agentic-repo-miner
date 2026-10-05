@@ -12,6 +12,42 @@ paper, mudança de dataset...) · **Adicionado / Alterado / Removido** ·
 
 ---
 
+## [2026-10-05] — Protocolo de pesquisa + papers de referência + organização de reuniões
+
+**Contexto:** conversa com o orientador na sexta (2026-10-02) — ele pediu para
+começar a escrever o **protocolo** ("com as questões de pesquisa e etc."),
+indicou o paper de exemplo *"Are We All Using Agents the Same Way?"* ("veja
+introdução e metodologia") e observou que **não achou onde o objetivo estava
+registrado**. Origem: orientador (paper + protocolo) e aluno (recuperação do
+paper do orientador e do "Agent READMEs").
+
+**Adicionado:**
+- `PROTOCOLO.md` v0.1 — registro formal do objetivo + RQs (RQ1 adoção, RQ2
+  conteúdo, RQ3 evolução) + construto teórico (intenção = objetivos + restrições
+  + razões) + método, validação, limitações e replicabilidade. Rascunho para
+  validação do orientador.
+- `meetings/` — transcrição da reunião 2026-09-16 movida da raiz +
+  `meetings/2026-09-16_resumo_executivo_anotado.md` (resumo executivo anotado,
+  checklist de tarefas e perguntas em aberto — o orientador pediu comentários na
+  transcrição).
+- `papers/MANIFEST.md` — 3 papers novos: o de exemplo de protocolo (Cynthia,
+  Das, Roy, MSR'26), o "Agent READMEs" (Chatlatanagulchai et al., TOSEM'26;
+  estratégia de coleta de context files + taxonomia de conteúdo) e o paper do
+  orientador (Fontão et al., 2018; estilo de protocolo de mineração).
+
+**Alterado:**
+- `AGENTS.md` — regra nova sobre `meetings/` e `PROTOCOLO.md`; estado atual e
+  roadmap atualizados.
+
+**Decisão:** nenhuma D nova; candidata **D7** (corpus de conteúdo = adotantes
+com arquivo de instrução explícito) proposta em aberto no protocolo.
+
+**Em aberto:** validar RQs + receber perguntas de operacionalização do
+orientador; esclarecer universo "~860" x 30.744 repos; rodada completa
+(`--limit 0`); validação manual de precisão das heurísticas; análise de conteúdo.
+
+---
+
 ## [2026-09-23] — v0.2: detecção multi-sinal (heurísticas de Robbes et al.)
 
 **Contexto:** paper indicado pelo orientador — *"Promises, Perils, and (Timely)

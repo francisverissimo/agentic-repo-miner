@@ -38,7 +38,11 @@ Agent Activity"* (Robbes et al., MSR'26).
   dir raiz 50 · subpasta 7. Resultados e análise: `CHANGELOG.md` (2026-09-23).
 - **Dados:** `data/` (gitignored) — `data/manifest.csv` (1 linha por repo,
   colunas `signals` + `heuristics_version`), `data/downloads/`, `data/parquet/`.
-- **Decisões vigentes:** D1–D6 (`DECISIONS.md`).
+- **Protocolo:** `PROTOCOLO.md` v0.1 (rascunho) — objetivo + RQs do mestrado
+  (dívida de intenção); validar com o orientador. Reuniões: `meetings/`
+  (transcrições + resumos executivos anotados).
+- **Decisões vigentes:** D1–D6 (`DECISIONS.md`) + candidata **D7** (corpus de
+  conteúdo = adotantes com arquivo de instrução explícito) em `PROTOCOLO.md`.
 
 ## Convenções e regras obrigatórias
 
@@ -62,6 +66,9 @@ Agent Activity"* (Robbes et al., MSR'26).
    exige novo número de `version`, entrada de CHANGELOG e (se mudar critério)
    atualização em `DECISIONS.md` — combate o Peril 4 do paper (heurísticas
    mudam rápido).
+10. **Protocolo e reuniões:** o objetivo + RQs do mestrado ficam em
+    `PROTOCOLO.md` (documento vivo; toda mudança gera CHANGELOG). Transcrições
+    de reuniões e resumos executivos anotados ficam em `meetings/` (versionados).
 
 ## Como rodar
 
@@ -100,13 +107,25 @@ Rationale completo e alternativas consideradas: `DECISIONS.md`.
   detectar coding agents (files, commits, branches, PRs); Peril 1
   (observabilidade parcial), Peril 4 (velocity), Promise 5 (taxonomia dos
   arquivos de guidance).
+- Protocolo de exemplo (orientador — "veja introdução e metodologia"): Cynthia,
+  Das, Roy (MSR'26) — *Are We All Using Agents the Same Way?* — template de
+  estudo empírico (coleta, RQ por seção, validação com LLM + humanos + Kappa).
+- Conteúdo dos context files: Chatlatanagulchai et al. (TOSEM'26) — *Agent
+  READMEs* — estratégia de coleta (varredura da raiz por nomes conhecidos) +
+  taxonomia de 16 tipos de instrução + manutenção (rajadas curtas).
+- Estilo de protocolo do orientador: Fontão et al. (2018, JSERD) — mineração +
+  métricas + validação com praticantes (survey).
 
 ## Roadmap
 
+- [ ] Validar `PROTOCOLO.md` com o orientador (RQs + corpus de conteúdo — D7)
 - [ ] Rodada completa do dataset (`--limit 0`)
-- [ ] Análise de conteúdo dos arquivos de instrução usando a taxonomia do
-      Promise 5 (regras/convenções · conhecimento do repo · planos de tarefa ·
-      táticas/estratégias)
+- [ ] Validação manual de precisão das heurísticas (Peril 1)
+- [ ] Análise de conteúdo dos arquivos de instrução (RQ2): taxonomia de 16 tipos
+      (Agent READMEs) + construto do orientador (objetivos/restrições/razões);
+      rotulagem LLM + validação humana com Cohen's Kappa
+- [ ] Análise de evolução temporal dos context files vs. atividade de código
+      (RQ3 — hipótese de dívida de intenção)
 - [x] ~~v2: detecção multi-sinal~~ (concluído em 2026-09-23 — D6)
 - [ ] Cruzamento com outros datasets (ex.: `disler/agent-contexts`) p/ estimar
       cobertura
