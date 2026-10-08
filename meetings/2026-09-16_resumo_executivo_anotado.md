@@ -84,7 +84,8 @@
   frente**: a etapa de recuperação está concluída (v0.1/v0.2); a **categorização
   de conteúdo** é a próxima (taxonomia de conteúdo + o construto dele). Decisão
   minha de desenho (a validar): analisar conteúdo apenas nos adotantes com
-  **arquivo de instrução explícito** (126 na amostra), não nos 390 — candidata a
+  **arquivo de instrução explícito** (111 dos 390 adotantes na amostra), não nos
+  390 — candidata a
   D7.
 
 ### 3.4 Números: "860 → 300"

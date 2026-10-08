@@ -84,7 +84,8 @@ análise dos arquivos de contexto (`.md`)?*
   programada antes da análise de conteúdo.
 - **Corpus da análise de conteúdo (proposta → candidata a D7):** repos adotantes
   com **arquivo de instrução explícito** na raiz/subpasta conhecida (guia direto
-  de intenção). Na amostra: 126 repos. Deixar de fora adotantes detectados *só*
+  de intenção). Na amostra: 111 dos 390 adotantes (104 na raiz; 7 em subpasta
+  conhecida). Deixar de fora adotantes detectados *só*
   por commit/branch evita analisar conteúdo onde não há arquivo de contexto.
   *(Validar com o orientador.)*
 

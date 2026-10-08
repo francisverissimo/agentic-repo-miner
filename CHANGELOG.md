@@ -12,6 +12,39 @@ paper, mudança de dataset...) · **Adicionado / Alterado / Removido** ·
 
 ---
 
+## [2026-10-08] — Rascunho de slide da reunião + reconciliação de números (corpus D7)
+
+**Contexto:** montar o "slidezinho" semanal pedido pelo orientador (evolução
+mensurável: dataset → MDs → heurísticas → resultado). Origem: aluno + agente.
+
+**Adicionado:**
+- `meetings/2026-10-08_rascunho_slide_reuniao.md` — 7 slides em Markdown
+  (capa · objetivo registrado no PROTOCOLO · pipeline · números da amostra ·
+  sinais de adoção · próximos passos · perguntas ao orientador), prontos para
+  copiar para o Google Slides, com notas de locutor.
+
+**Alterado / corrigido:**
+- Corpus da análise de conteúdo (candidata a D7): corrigido de **126 → 111**
+  adotantes com arquivo de instrução explícito (104 na raiz · 7 em
+  `.github/instructions`) — conferido contra `data/manifest.csv`
+  (instrução_files não nulo entre os 390 baixados). Atualizado em
+  `PROTOCOLO.md` §5 e no resumo executivo.
+
+**Conferido (validação de números, v0.2, amostra 500/seed 42):**
+- 390 adotantes (78%) · 78 erros (77 privados/removidos + 1 repo com 3.372 .md
+  pulado) · 32 sem sinais; 14.633 `.md` no disco (188 MB).
+- Sinais entre adotantes: commit 287 · branch 250 · arquivo raiz 107 · dir raiz
+  50 · subpasta 7; multi-sinal 269 (69%).
+- Adotantes por agente (repos podem estar em >1 tabela): Copilot 114 · Codex 114
+  · Claude 90 · Jules 45 · Devin 37.
+- Obs.: `data/manifest.csv` superconta +6 `md_downloaded` (14.639) vs. 14.633 no
+  disco — slide usa o valor do disco (verificável).
+
+**Em aberto:** validar RQs/universo/operacionalização/D7 com o orientador;
+rodada completa (`--limit 0`); validação de precisão das heurísticas.
+
+---
+
 ## [2026-10-05] — Protocolo de pesquisa + papers de referência + organização de reuniões
 
 **Contexto:** conversa com o orientador na sexta (2026-10-02) — ele pediu para
