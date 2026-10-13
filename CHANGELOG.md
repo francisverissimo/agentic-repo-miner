@@ -12,6 +12,24 @@ paper, mudança de dataset...) · **Adicionado / Alterado / Removido** ·
 
 ---
 
+## [2026-10-13] — Slide da reunião elaborado (versão completa)
+
+**Contexto:** preparar o "slidezinho" semanal em versão completa a partir do
+rascunho (2026-10-08). Origem: aluno + agente.
+
+**Adicionado:**
+- `meetings/2026-10-13_slide_reuniao.md` — deck de 12 slides (capa · motivação
+  vitória/preocupação · construto e hipóteses H1–H3 · RQs · pipeline · universo
+  30.744 vs ~860 · resultados da amostra · sinais · corpus D7 · próximos passos ·
+  perguntas ao orientador · visão de semestre), cada um com nota de locutor +
+  tempo sugerido (~10 min de fala). Fontes dos números: `data/manifest.csv`,
+  `CHANGELOG.md`, `PROTOCOLO.md`.
+
+**Em aberto:** validação com o orientador (universo, RQs, operacionalização,
+D7, priorização); rodada completa (`--limit 0`).
+
+---
+
 ## [2026-10-08] — Rascunho de slide da reunião + reconciliação de números (corpus D7)
 
 **Contexto:** montar o "slidezinho" semanal pedido pelo orientador (evolução
