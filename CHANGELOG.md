@@ -12,6 +12,22 @@ paper, mudança de dataset...) · **Adicionado / Alterado / Removido** ·
 
 ---
 
+## [2026-10-13] — Nova regra de governança: commits apenas após confirmação
+
+**Contexto:** definição de comportamento do aluno sobre o fluxo de trabalho com
+agentes: *sempre que algo for feito e for plausível de commit, analisar antes e
+somente commitar após confirmação explícita do usuário*. Origem: aluno.
+
+**Alterado:**
+- `AGENTS.md` — regra **11**: nenhum commit sem análise prévia apresentada e
+  confirmação explícita; proibido `git add -A`/`--all` por conta própria.
+
+**Observação:** commits anteriores (ex.: `26885df`, `0d95576`, `2dd0bd0`) foram
+feitos antes desta regra; a partir desta entrada, o novo fluxo vale para todos
+os agentes.
+
+---
+
 ## [2026-10-13] — Slide da reunião elaborado (versão completa)
 
 **Contexto:** preparar o "slidezinho" semanal em versão completa a partir do

@@ -69,6 +69,11 @@ Agent Activity"* (Robbes et al., MSR'26).
 10. **Protocolo e reuniões:** o objetivo + RQs do mestrado ficam em
     `PROTOCOLO.md` (documento vivo; toda mudança gera CHANGELOG). Transcrições
     de reuniões e resumos executivos anotados ficam em `meetings/` (versionados).
+11. **Commits apenas após confirmação:** antes de qualquer commit, apresentar
+    análise do que mudou (arquivos, motivos, impacto) e aguardar o "pode
+    commitar" explícito do usuário. Sem confirmação, **não commitar** (nem usar
+    `git add -A`/`--all` por conta própria). O usuário pode pedir que pequenas
+    correções de um mesmo trabalho sejam empacotadas junto.
 
 ## Como rodar
 
